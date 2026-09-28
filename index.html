@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ข้อสอบวิชาวิทยาศาสตร์ 5 ชุดที่ 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            background-color: #0b0f19; /* Deep space dark */
+            color: white;
+            user-select: none;
+        }
+
+        /* Background camera feed for AR effect - hidden for pure space theme if desired, but kept for AR option */
+        #ar-camera {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -2;
+            display: none;
+            opacity: 0.3; /* Blend with space theme */
+        }
+
+        /* Enhanced space background */
+        #space-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%);
+            z-index: -3;
+        }
+        
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #e2e8f0, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 50px 160px, #f8fafc, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 90px 40px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 130px 80px, #cbd5e1, rgba(0,0,0,0)),
+                radial-gradient(3px 3px at 160px 120px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 200px 250px, #f8fafc, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 250px 100px, #e2e8f0, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 300px 300px;
+            animation: twinkle 5s infinite alternate;
+            opacity: 0.7;
+        }
+        
+        .stars2 {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(1.5px 1.5px at 10px 20px, #93c5fd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 150px 180px, #c4b5fd, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 280px 280px, #93c5fd, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 400px 400px;
+            animation: twinkle 7s infinite alternate-reverse;
+            opacity: 0.5;
+        }
+
+        /* Nebula effect */
+        .nebula {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            background: 
+                radial-gradient(circle at 15% 25%, rgba(76, 29, 149, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 75% 65%, rgba(30, 58, 138, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 50% 90%, rgba(8, 145, 178, 0.15) 0%, transparent 45%);
+            z-index: -2;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.2; transform: scale(0.98); }
+            100% { opacity: 0.9; transform: scale(1.02); }
+        }
+
+        /* Glassmorphism UI - Adjusted for space theme */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.05);
+        }
+
+        .choice-btn {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .choice-btn:hover {
+            background: rgba(51, 65, 85, 0.8);
+            transform: translateY(-3px) scale(1.01);
+            border-color: rgba(147, 197, 253, 0.5);
+            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.2);
+        }
+
+        .choice-btn:active {
+            transform: translateY(1px);
+        }
+
+        .choice-btn.correct {
+            background: rgba(16, 185, 129, 0.8) !important;
+            border-color: rgb(52, 211, 153) !important;
+            color: white;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+            transform: scale(1.02);
+        }
+
+        .choice-btn.wrong {
+            background: rgba(220, 38, 38, 0.8) !important;
+            border-color: rgb(248, 113, 113) !important;
+            color: white;
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.6);
+        }
+
+        .screen {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        .screen.active {
+            display: flex;
+            opacity: 1;
+        }
+        
+        /* Floating animation for elements */
+        .float-anim {
+            animation: floating 6s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Space Background -->
+    <div id="space-bg">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="nebula"></div>
+    </div>
+    
+    <!-- AR Camera (Optional, currently blended) -->
+    <video id="ar-camera" autoplay playsinline muted></video>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="screen active flex-col items-center justify-center w-full h-screen z-10 px-4">
+        <div class="glass-panel p-8 rounded-3xl max-w-lg w-full text-center relative overflow-hidden float-anim">
+            <!-- Glowing orbs -->
+            <div class="absolute -top-12 -right-12 w-40 h-40 bg-indigo-600 opacity-30 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-blue-600 opacity-30 rounded-full blur-3xl"></div>
+            
+            <h1 class="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 mb-3 tracking-wide">
+                ข้อสอบวิชาวิทยาศาสตร์ 5
+            </h1>
+            <h2 class="text-xl md:text-2xl text-blue-200 mb-8 font-medium">ชุดที่ 2</h2>
+            
+            <div class="space-y-4 text-sm md:text-base text-gray-200 mb-10 text-left bg-black bg-opacity-40 p-6 rounded-2xl border border-white/10">
+                <p class="flex items-center"><span class="mr-3 text-indigo-400 text-xl">✦</span> จำนวน 30 ข้อ (ข้อละ 1 คะแนน)</p>
+                <p class="flex items-center"><span class="mr-3 text-indigo-400 text-xl">✦</span> ไม่มีการจับเวลา</p>
+                <p class="flex items-center"><span class="mr-3 text-indigo-400 text-xl">✦</span> ระบบจะสลับโจทย์และตัวเลือกทุกครั้ง</p>
+            </div>
+
+            <button onclick="startGame()" class="w-full py-4 bg-gradient-to-r from-indigo-500 via-blue-600 to-indigo-600 hover:from-indigo-400 hover:via-blue-500 hover:to-indigo-500 text-white rounded-2xl font-bold text-xl shadow-[0_0_20px_rgba(79,70,229,0.4)] transition-all transform hover:scale-[1.02] active:scale-[0.98] border border-indigo-400/30">
+                เริ่มทำแบบทดสอบ
+            </button>
+        </div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quiz-screen" class="screen flex-col items-center justify-center w-full h-screen z-10 px-4 py-8">
+        <!-- Header / Progress -->
+        <div class="absolute top-6 left-0 right-0 px-6 flex justify-between items-center z-20 max-w-4xl mx-auto w-full">
+            <div class="glass-panel px-5 py-2.5 rounded-2xl text-sm font-semibold text-blue-300 flex items-center shadow-lg border border-white/10">
+                <span class="mr-2 opacity-70">ข้อที่</span> <span id="current-question-num" class="text-white text-xl mx-1">1</span> <span class="opacity-70">/ 30</span>
+            </div>
+            <div class="glass-panel px-5 py-2.5 rounded-2xl text-sm font-semibold text-purple-300 flex items-center shadow-lg border border-white/10">
+                <span class="mr-2 opacity-70">คะแนน</span> <span id="current-score" class="text-white text-xl">0</span>
+            </div>
+        </div>
+
+        <!-- Question Container -->
+        <div class="glass-panel p-6 md:p-8 rounded-3xl w-full max-w-3xl flex flex-col mt-16 shadow-2xl relative border border-white/10">
+            <div class="absolute -top-24 left-1/2 transform -translate-x-1/2 w-48 h-48 bg-indigo-500 opacity-15 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div id="question-text" class="text-lg md:text-xl font-medium text-white mb-8 leading-relaxed text-center drop-shadow-md">
+                กำลังโหลดคำถาม...
+            </div>
+
+            <!-- Choices Grid -->
+            <div id="choices-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+                <!-- Buttons injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="screen flex-col items-center justify-center w-full h-screen z-10 px-4">
+        <div class="glass-panel p-8 md:p-12 rounded-3xl max-w-lg w-full text-center">
+            <h2 class="text-3xl font-bold text-white mb-2">สรุปผลคะแนน</h2>
+            <p class="text-gray-300 mb-8">คุณทำแบบทดสอบเสร็จสิ้นแล้ว</p>
+            <div class="w-40 h-40 mx-auto rounded-full border-[6px] border-indigo-500 flex items-center justify-center mb-8 shadow-[0_0_40px_rgba(99,102,241,0.5)] bg-black bg-opacity-50 float-anim relative">
+                <div class="absolute inset-0 rounded-full border-2 border-white/20 animate-ping opacity-20"></div>
+                <div class="text-center z-10">
+                    <div id="final-score" class="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-indigo-300 drop-shadow-lg">
+                        0
+                    </div>
+                    <div class="text-sm text-indigo-200 mt-1 font-medium">เต็ม 30</div>
+                </div>
+            </div>
+
+            <div id="feedback-text" class="text-2xl font-medium text-white mb-10 drop-shadow-md">
+                ยอดเยี่ยมมาก!
+            </div>
+
+            <button onclick="resetGame()" class="w-full py-4 bg-white/10 hover:bg-white/20 border border-indigo-300/40 text-white rounded-2xl font-bold text-lg transition-all shadow-lg hover:shadow-indigo-500/20 backdrop-blur-sm">
+                <span class="mr-2">🚀</span> เล่นใหม่อีกครั้ง
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Raw Data extraction (removed question numbers to allow pure randomization)
+        const rawQuizData = [
+            {
+                q: "ปัจจัยสำคัญที่ทำให้โลกเกิดฤดูกาลแตกต่างกัน ในแต่ละช่วงของปีคือข้อใด",
+                opts: [
+                    { t: "โลกหมุนรอบตัวเองด้วยความเร็วที่เปลี่ยนแปลง", c: false },
+                    { t: "โลกโคจรรอบดวงอาทิตย์และแกนโลกเอียง", c: true },
+                    { t: "โลกอยู่ใกล้ดวงจันทร์มากขึ้นในบางช่วง", c: false },
+                    { t: "ดวงอาทิตย์มีอุณหภูมิเปลี่ยนแปลงตามฤดูกาล", c: false }
+                ]
+            },
+            {
+                q: "โลกใช้เวลาในการโคจรรอบดวงอาทิตย์ ครบหนึ่งรอบประมาณเท่าใด",
+                opts: [
+                    { t: "24 ชั่วโมง", c: false },
+                    { t: "30 วัน", c: false },
+                    { t: "365.25 วัน", c: true },
+                    { t: "12 ชั่วโมง", c: false }
+                ]
+            },
+            {
+                q: "วันวสันตวิษุวัต ในซีกโลกเหนือเกิดขึ้นประมาณวันที่เท่าใด",
+                opts: [
+                    { t: "20 หรือ 21 มีนาคม", c: true },
+                    { t: "21 หรือ 22 มิถุนายน", c: false },
+                    { t: "22 หรือ 23 กันยายน", c: false },
+                    { t: "21 หรือ 22 ธันวาคม", c: false }
+                ]
+            },
+            {
+                q: "วันครีษมายัน เป็นวันที่ซีกโลกเหนือมีลักษณะอย่างไร",
+                opts: [
+                    { t: "มีกลางวันและกลางคืนยาวเท่ากัน", c: false },
+                    { t: "มีกลางวันสั้นที่สุดในรอบปี", c: false },
+                    { t: "มีกลางวันยาวที่สุดในรอบปี", c: true },
+                    { t: "ไม่มีช่วงเวลากลางคืน", c: false }
+                ]
+            },
+            {
+                q: "วันศารทวิษุวัต (Autumnal Equinox) เกิดขึ้นประมาณวันที่เท่าใด",
+                opts: [
+                    { t: "20 หรือ 21 มีนาคม", c: false },
+                    { t: "21 หรือ 22 มิถุนายน", c: false },
+                    { t: "22 หรือ 23 กันยายน", c: true },
+                    { t: "21 หรือ 22 ธันวาคม", c: false }
+                ]
+            },
+            {
+                q: "วันเหมายัน ในซีกโลกเหนือมีลักษณะสำคัญอย่างไร",
+                opts: [
+                    { t: "มีกลางวันยาวที่สุดในรอบปี", c: false },
+                    { t: "มีกลางวันสั้นที่สุดในรอบปี", c: true },
+                    { t: "กลางวันและกลางคืนยาวเท่ากัน", c: false },
+                    { t: "ดวงอาทิตย์ไม่ขึ้นเหนือขอบฟ้าในทุกพื้นที่", c: false }
+                ]
+            },
+            {
+                q: "ในช่วงวันที่ 21 มีนาคม ถึง 20 มิถุนายน ซีกโลกเหนืออยู่ในฤดูใด",
+                opts: [
+                    { t: "ฤดูร้อน", c: false },
+                    { t: "ฤดูใบไม้ผลิ", c: true },
+                    { t: "ฤดูใบไม้ร่วง", c: false },
+                    { t: "ฤดูหนาว", c: false }
+                ]
+            },
+            {
+                q: "ฤดูกาลในซีกโลกเหนือและซีกโลกใต้ มีความสัมพันธ์กันอย่างไร",
+                opts: [
+                    { t: "มีฤดูกาลเหมือนกันตลอดทั้งปี", c: false },
+                    { t: "ซีกโลกเหนือมีฤดูกาลมากกว่าซีกโลกใต้", c: false },
+                    { t: "ฤดูกาลของทั้งสองซีกโลกตรงข้ามกัน", c: true },
+                    { t: "ซีกโลกใต้ไม่มีการเปลี่ยนแปลงฤดูกาล", c: false }
+                ]
+            },
+            {
+                q: "ในวันวิษุวัต ดวงอาทิตย์ตั้งฉากกับพื้นโลกบริเวณใด",
+                opts: [
+                    { t: "เส้นศูนย์สูตร", c: true },
+                    { t: "เส้นทรอปิกออฟแคนเซอร์", c: false },
+                    { t: "เส้นทรอปิกออฟแคปริคอร์น", c: false },
+                    { t: "ขั้วโลกเหนือ", c: false }
+                ]
+            },
+            {
+                q: "ประเทศไทยมีฤดูกาลหลักตามลักษณะภูมิอากาศกี่ฤดู",
+                opts: [
+                    { t: "2 ฤดู", c: false },
+                    { t: "3 ฤดู", c: true },
+                    { t: "4 ฤดู", c: false },
+                    { t: "5 ฤดู", c: false }
+                ]
+            },
+            {
+                q: "เมื่อซีกโลกเหนือเอียงเข้าหาดวงอาทิตย์ พื้นที่ในซีกโลกเหนือจะได้รับพลังงานจากดวงอาทิตย์มากขึ้น ผลที่เกิดขึ้นคือข้อใด",
+                opts: [
+                    { t: "เกิดฤดูหนาว เพราะกลางวันยาวขึ้น", c: false },
+                    { t: "เกิดฤดูร้อน เพราะได้รับพลังงานจากดวงอาทิตย์มากขึ้น", c: true },
+                    { t: "เกิดฤดูใบไม้ร่วง เพราะกลางคืนสั้นลง", c: false },
+                    { t: "เกิดฤดูใบไม้ผลิ เพราะโลกอยู่ห่างจากดวงอาทิตย์มากขึ้น", c: false }
+                ]
+            },
+            {
+                q: "หากประเทศไทยอยู่ในซีกโลกเหนือและประเทศหนึ่งอยู่ในซีกโลกใต้ เมื่อประเทศไทยเข้าสู่ฤดูร้อน ประเทศนั้นจะมีแนวโน้มเข้าสู่ฤดูใด",
+                opts: [
+                    { t: "ฤดูร้อน", c: false },
+                    { t: "ฤดูใบไม้ผลิ", c: false },
+                    { t: "ฤดูหนาว", c: true },
+                    { t: "ฤดูฝน", c: false }
+                ]
+            },
+            {
+                q: "นักเรียนสังเกตว่าประเทศหนึ่งมีช่วงเวลากลางวันยาวที่สุดในรอบปี และดวงอาทิตย์อยู่สูงบนท้องฟ้าในเวลาเที่ยงวัน ขณะนั้นประเทศดังกล่าวน่าจะอยู่ในฤดูใด หากตั้งอยู่ในซีกโลกเหนือ",
+                opts: [
+                    { t: "ฤดูใบไม้ผลิ", c: false },
+                    { t: "ฤดูร้อน", c: true },
+                    { t: "ฤดูใบไม้ร่วง", c: false },
+                    { t: "ฤดูหนาว", c: false }
+                ]
+            },
+            {
+                q: "ในวันที่ 22 กันยายน นักเรียนสังเกตว่า กลางวันและกลางคืนมีระยะเวลาใกล้เคียงกัน หากอยู่ในซีกโลกเหนือ ประเทศนั้นกำลังเข้าสู่ฤดูใด",
+                opts: [
+                    { t: "ฤดูใบไม้ผลิ", c: false },
+                    { t: "ฤดูร้อน", c: false },
+                    { t: "ฤดูใบไม้ร่วง", c: true },
+                    { t: "ฤดูหนาว", c: false }
+                ]
+            },
+            {
+                q: "ในวันที่ 22 ธันวาคม ประเทศ A อยู่ในซีกโลกเหนือ ส่วนประเทศ B อยู่ในซีกโลกใต้ ข้อใดอธิบายฤดูกาลของทั้งสองประเทศได้ถูกต้องที่สุด",
+                opts: [
+                    { t: "ประเทศ A เป็นฤดูร้อน ประเทศ B เป็นฤดูหนาว", c: false },
+                    { t: "ประเทศ A เป็นฤดูหนาว ประเทศ B เป็นฤดูร้อน", c: true },
+                    { t: "ทั้งสองประเทศเป็นฤดูหนาว", c: false },
+                    { t: "ทั้งสองประเทศเป็นฤดูร้อน", c: false }
+                ]
+            },
+            {
+                q: "ปรากฏการณ์ข้างขึ้นข้างแรม เกิดจากสาเหตุใดเป็นหลัก",
+                opts: [
+                    { t: "โลกหมุนรอบตัวเองทำให้เกิดกลางวันและกลางคืน", c: false },
+                    { t: "ดวงอาทิตย์โคจรรอบโลก", c: false },
+                    { t: "ดวงจันทร์โคจรรอบโลก ทำให้ผู้สังเกตบนโลกมองเห็นการสะท้อนแสงแตกต่างกันไป", c: true },
+                    { t: "ดวงจันทร์เคลื่อนที่ออกห่างจากโลกมากขึ้น", c: false }
+                ]
+            },
+            {
+                q: "เมื่อดวงจันทร์โคจรมาอยู่ระหว่างโลกกับดวงอาทิตย์ จะตรงกับวันใด",
+                opts: [
+                    { t: "วันขึ้น 8 ค่ำ", c: false },
+                    { t: "วันขึ้น 15 ค่ำ", c: false },
+                    { t: "วันแรม 8 ค่ำ", c: false },
+                    { t: "วันแรม 15 ค่ำ", c: true }
+                ]
+            },
+            {
+                q: "วันแรม 15 ค่ำ มีชื่อเรียกอีกอย่างหนึ่งว่าอะไร",
+                opts: [
+                    { t: "วันเพ็ญ", c: false },
+                    { t: "จันทร์ดับ", c: true },
+                    { t: "วันพระ", c: false },
+                    { t: "วันจันทร์เพ็ญ", c: false }
+                ]
+            },
+            {
+                q: "เมื่อดวงจันทร์โคจรมาอยู่ด้านตรงข้ามกับดวงอาทิตย์ จะตรงกับวันใด",
+                opts: [
+                    { t: "วันขึ้น 8 ค่ำ", c: false },
+                    { t: "วันขึ้น 15 ค่ำ", c: true },
+                    { t: "วันแรม 8 ค่ำ", c: false },
+                    { t: "วันแรม 15 ค่ำ", c: false }
+                ]
+            },
+            {
+                q: "ในวันขึ้น 15 ค่ำ ผู้สังเกตบนโลกจะมองเห็นดวงจันทร์ในลักษณะใด",
+                opts: [
+                    { t: "มองไม่เห็นดวงจันทร์", c: false },
+                    { t: "สว่างเพียงครึ่งดวง", c: false },
+                    { t: "สว่างเป็นเสี้ยวเล็ก ๆ", c: false },
+                    { t: "สว่างเต็มดวง", c: true }
+                ]
+            },
+            {
+                q: "วันขึ้น 15 ค่ำ มีชื่อเรียกอีกอย่างหนึ่งว่าอะไร",
+                opts: [
+                    { t: "จันทร์ดับ", c: false },
+                    { t: "วันเพ็ญ", c: true },
+                    { t: "วันอมาวสี", c: false },
+                    { t: "ข้างแรม", c: false }
+                ]
+            },
+            {
+                q: "การที่ดวงจันทร์โคจรมาอยู่ในตำแหน่งมุมฉาก จะตรงกับช่วงวันใด",
+                opts: [
+                    { t: "วันขึ้น 1 ค่ำ และวันแรม 1 ค่ำ", c: false },
+                    { t: "วันขึ้น 15 ค่ำ และวันแรม 15 ค่ำ", c: false },
+                    { t: "วันขึ้น 8 ค่ำ และวันแรม 8 ค่ำ", c: true },
+                    { t: "วันขึ้น 14 ค่ำ และวันแรม 14 ค่ำ", c: false }
+                ]
+            },
+            {
+                q: "ช่วงเวลา 'ข้างขึ้น' มีลักษณะการเปลี่ยนแปลงอย่างไร",
+                opts: [
+                    { t: "มองเห็นดวงจันทร์ค่อยๆ มืดลงในแต่ละคืน", c: false },
+                    { t: "มองเห็นดวงจันทร์ค่อยๆ สว่างขึ้นในแต่ละคืนจนสว่างเต็มดวง", c: true },
+                    { t: "มองไม่เห็นดวงจันทร์เลยตลอดช่วงเวลา", c: false },
+                    { t: "ดวงจันทร์มีขนาดใหญ่ขึ้นกว่าปกติ", c: false }
+                ]
+            },
+            {
+                q: "ช่วงเวลา 'ข้างแรม' มีลักษณะการเปลี่ยนแปลงอย่างไร",
+                opts: [
+                    { t: "มองเห็นดวงจันทร์ค่อยๆ สว่างขึ้นในแต่ละคืน", c: false },
+                    { t: "มองไม่เห็นดวงจันทร์บนท้องฟ้า", c: false },
+                    { t: "มองเห็นดวงจันทร์ค่อยๆ มืดลงในแต่ละคืน จนมืดสนิททั้งดวง", c: true },
+                    { t: "ดวงจันทร์มีลักษณะเป็นครึ่งดวงตลอดเวลา", c: false }
+                ]
+            },
+            {
+                q: "นักเรียนสังเกตดวงจันทร์ในคืนหนึ่ง พบว่ามองเห็นส่วนสว่างประมาณครึ่งดวง และในคืนถัด ๆ ไปส่วนสว่างมีขนาดเพิ่มขึ้น ข้อใดอธิบายได้เหมาะสมที่สุด",
+                opts: [
+                    { t: "ดวงจันทร์กำลังเข้าสู่ช่วงข้างแรม", c: false },
+                    { t: "ดวงจันทร์กำลังเข้าสู่ช่วงข้างขึ้น", c: true },
+                    { t: "โลกกำลังบังแสงดวงอาทิตย์มากขึ้น", c: false },
+                    { t: "ดวงจันทร์กำลังหยุดโคจรรอบโลก", c: false }
+                ]
+            },
+            {
+                q: "พิจารณาข้อมูลการสังเกตดวงจันทร์:<br><br>วันที่ 1: สว่างเกือบเต็มดวง<br>วันที่ 5: สว่างประมาณครึ่งดวง<br>วันที่ 10: สว่างเป็นเสี้ยวเล็ก<br><br>จากข้อมูล ดวงจันทร์กำลังอยู่ในช่วงใด",
+                opts: [
+                    { t: "ข้างขึ้น เพราะส่วนสว่างเพิ่มขึ้น", c: false },
+                    { t: "ข้างแรม เพราะส่วนสว่างลดลง", c: true },
+                    { t: "จันทร์ดับ เพราะส่วนสว่างเต็มดวง", c: false },
+                    { t: "ไม่สามารถระบุได้ เพราะดวงจันทร์ไม่มีส่วนสว่าง", c: false }
+                ]
+            },
+            {
+                q: "นักเรียนต้องการวางแผนสังเกตดวงจันทร์ ให้เห็นส่วนสว่างเพิ่มขึ้นจากคืนหนึ่งไปยังคืนถัดไป ควรเลือกช่วงเวลาใด",
+                opts: [
+                    { t: "ช่วงข้างแรม", c: false },
+                    { t: "ช่วงข้างขึ้น", c: true },
+                    { t: "ช่วงจันทร์เต็มดวงเท่านั้น", c: false },
+                    { t: "ช่วงที่ดวงจันทร์อยู่ในเงาโลก", c: false }
+                ]
+            },
+            {
+                q: "หากนักเรียนเห็นดวงจันทร์สว่างเต็มดวงในคืนหนึ่ง และต้องการคาดการณ์ลักษณะของดวงจันทร์ในอีกประมาณ 7 วันถัดไป ควรคาดการณ์อย่างไร",
+                opts: [
+                    { t: "ดวงจันทร์จะยังสว่างเต็มดวงเหมือนเดิม", c: false },
+                    { t: "ดวงจันทร์จะเข้าสู่ช่วงข้างแรม และเห็นส่วนสว่างประมาณครึ่งดวง", c: true },
+                    { t: "ดวงจันทร์จะเข้าสู่ช่วงข้างขึ้น และเห็นส่วนสว่างเพิ่มขึ้น", c: false },
+                    { t: "ดวงจันทร์จะหายไปจากท้องฟ้าอย่างถาวร", c: false }
+                ]
+            },
+            {
+                q: "โดยปกติแล้ว เรามักจะเห็นดวงจันทร์ที่เกิด 'ข้างขึ้น' ในช่วงเวลาใด",
+                opts: [
+                    { t: "ช่วงกลางวัน", c: false },
+                    { t: "ช่วงเที่ยงคืน", c: false },
+                    { t: "ช่วงเช้ามืด", c: false },
+                    { t: "ช่วงหัวค่ำ", c: true }
+                ]
+            },
+            {
+                q: "โดยปกติแล้ว เรามักจะเห็นดวงจันทร์ที่เกิด 'ข้างแรม' ในช่วงเวลาใด",
+                opts: [
+                    { t: "ช่วงหัวค่ำ", c: false },
+                    { t: "ช่วงเช้ามืด", c: true },
+                    { t: "ช่วงเที่ยงวัน", c: false },
+                    { t: "ช่วงบ่าย", c: false }
+                ]
+            }
+        ];
+
+        let shuffledQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswering = false;
+
+        // Audio synthesizer for simple retro sound effects
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            if (type === 'correct') {
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                oscillator.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.1); // C6
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'wrong') {
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'click') {
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.1);
+            }
+        }
+
+        // Setup AR Camera
+        async function setupCamera() {
+            const video = document.getElementById('ar-camera');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                video.srcObject = stream;
+                video.style.display = 'block';
+            } catch (err) {
+                console.log("Camera access denied or not available. Using space background fallback.", err);
+                // The space background is already active by default
+            }
+        }
+
+        // Utility: Fisher-Yates Shuffle
+        function shuffleArray(array) {
+            const newArr = [...array];
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            }
+            return newArr;
+        }
+
+        // Navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(el => {
+                el.classList.remove('active');
+            });
+            setTimeout(() => {
+                document.getElementById(screenId).classList.add('active');
+            }, 10);
+        }
+
+        function startGame() {
+            playSound('click');
+            setupCamera(); // Try to get camera on start
+            
+            // Deep copy and shuffle questions
+            shuffledQuestions = shuffleArray(rawQuizData).map(q => {
+                return {
+                    q: q.q,
+                    opts: shuffleArray(q.opts) // Shuffle options for each question
+                };
+            });
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            updateHUD();
+            loadQuestion();
+            showScreen('quiz-screen');
+        }
+
+        function resetGame() {
+            playSound('click');
+            startGame();
+        }
+
+        function updateHUD() {
+            document.getElementById('current-question-num').innerText = currentQuestionIndex + 1;
+            document.getElementById('current-score').innerText = score;
+        }
+
+        function loadQuestion() {
+            isAnswering = false;
+            const currentQ = shuffledQuestions[currentQuestionIndex];
+            
+            document.getElementById('question-text').innerHTML = currentQ.q;
+            
+            const choicesContainer = document.getElementById('choices-container');
+            choicesContainer.innerHTML = '';
+            
+            const letters = ['ก', 'ข', 'ค', 'ง'];
+
+            currentQ.opts.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn w-full text-left p-4 md:p-5 rounded-2xl flex items-start space-x-4';
+                btn.innerHTML = `
+                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center font-bold text-blue-300 shadow-inner mt-0.5">
+                        ${letters[index]}
+                    </span>
+                    <span class="text-white text-base md:text-lg leading-snug">${opt.t}</span>
+                `;
+                
+                btn.onclick = () => handleAnswer(btn, opt.c);
+                choicesContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(btnElement, isCorrect) {
+            if (isAnswering) return;
+            isAnswering = true;
+
+            const allButtons = document.querySelectorAll('.choice-btn');
+            
+            if (isCorrect) {
+                playSound('correct');
+                btnElement.classList.add('correct');
+                score++;
+                updateHUD();
+            } else {
+                playSound('wrong');
+                btnElement.classList.add('wrong');
+                
+                // Highlight the correct one
+                const currentQ = shuffledQuestions[currentQuestionIndex];
+                const correctIndex = currentQ.opts.findIndex(o => o.c === true);
+                if(correctIndex !== -1 && allButtons[correctIndex]) {
+                    allButtons[correctIndex].classList.add('correct');
+                }
+            }
+
+            // Disable all buttons
+            allButtons.forEach(b => b.style.pointerEvents = 'none');
+
+            // Wait a moment before next question
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < shuffledQuestions.length) {
+                    // Quick fade effect
+                    const qContainer = document.getElementById('question-text').parentElement;
+                    qContainer.style.opacity = '0';
+                    qContainer.style.transform = 'scale(0.95)';
+                    
+                    setTimeout(() => {
+                        loadQuestion();
+                        updateHUD();
+                        qContainer.style.transition = 'all 0.3s ease';
+                        qContainer.style.opacity = '1';
+                        qContainer.style.transform = 'scale(1)';
+                    }, 300);
+
+                } else {
+                    showResults();
+                }
+            }, 1500);
+        }
+
+        function showResults() {
+            playSound('correct'); // Fanfare-ish
+            document.getElementById('final-score').innerText = score;
+            
+            let feedback = "";
+            const percentage = score / shuffledQuestions.length;
+            
+            if (percentage >= 0.8) feedback = "ยอดเยี่ยมมาก! อัจฉริยะด้านวิทยาศาสตร์ 🌟";
+            else if (percentage >= 0.6) feedback = "ทำได้ดีมาก! ความรู้แน่นปึ้ก 👍";
+            else if (percentage >= 0.4) feedback = "เกือบแล้ว! พยายามอีกนิดนะ ✌️";
+            else feedback = "ไม่เป็นไร! ทบทวนอีกนิดแล้วมาลองใหม่นะ 💪";
+            
+            document.getElementById('feedback-text').innerText = feedback;
+            showScreen('result-screen');
+            
+            // Stop camera if running to save battery
+            const video = document.getElementById('ar-camera');
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+                video.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
